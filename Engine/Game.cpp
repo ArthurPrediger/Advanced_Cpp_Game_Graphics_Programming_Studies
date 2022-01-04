@@ -21,16 +21,48 @@
 #include "MainWindow.h"
 #include "Game.h"
 
-Game::Game( MainWindow& wnd )
+Game::Game(MainWindow& wnd)
 	:
-	wnd( wnd ),
-	gfx( wnd ),
-	ct( gfx ),
-	cam(ct)
+	wnd(wnd),
+	gfx(wnd),
+	ct(gfx),
+	cam(ct),
+	plank({100.0f, 200.0f}, -380.0f, -100.0f, 280.0f, 10.0f),
+	ball({-150.0f, -250.0f}, 15.0f, {-8.0f, 32.0f})
 {
-	entities.emplace_back(Star::Make(150.0f, 75.0f, 6));
-	entities.emplace_back(Star::Make(200.0f, 50.0f, 4), Vec2(500.0f, 200.0f));
-	entities.emplace_back(Star::Make(80.0f, 65.0f, 8), Vec2(-300.0f, 100.0f));
+	/*std::mt19937 rng(std::random_device{}());
+	std::uniform_real_distribution<float> xDist(-WorldWidth / 2.0f, WorldWidth / 2.0f);
+	std::uniform_real_distribution<float> yDist(-WorldHeight / 2.0f, WorldHeight / 2.0f);
+	std::normal_distribution<float> radDist(meanStarRadius, devStarRadius);
+	std::normal_distribution<float> ratDist(meanInnerRatio, devInnerRatio);
+	std::normal_distribution<float> flareDist(meanFlares, devFlares);
+	const Color colors[] = { Colors::White, Colors::Blue, Colors::Green, Colors::Red, Colors::Cyan, Colors::Yellow };
+	std::uniform_int_distribution<size_t> colorSampler(0, std::end(colors) - std::begin(colors));
+	std::normal_distribution<float> colorFreqDist(meanColorFreq, devColorFreq);
+	std::uniform_real_distribution<float> phaseDist(0.0f, 2.0f * 3.14159f);
+	std::normal_distribution<float> radiusAmplitudeDist(meanRadiusAmplitude, devRadiusAmplitude);
+	std::normal_distribution<float> radiusFreqDist(meanRadiusFreq, devRadiusFreq);
+
+	while (stars.size() < nStars)
+	{
+		const auto rad = std::clamp(radDist(rng), minStarRadius, maxStarRadius);
+		const Vec2 pos = { xDist(rng), yDist(rng) };
+		if (std::any_of(stars.begin(), stars.end(), [&](const StarBro& sb)
+			{return (sb.GetPos() - pos).Len() < rad + sb.GetMaxRadius(); }))
+		{
+			continue;
+		}
+
+		const auto rat = std::clamp(ratDist(rng), minInnerRatio, maxInnerRatio);
+		const Color c = colors[colorSampler(rng)];
+		const int nFlares = std::clamp((int)flareDist(rng), minFlares, maxFlares);
+		const float colorFreq = std::clamp(colorFreqDist(rng), minColorFreq, maxColorFreq);
+		const float colorPhase = phaseDist(rng);
+		const float radiusAmplitude = std::clamp(radiusAmplitudeDist(rng), minRadiusAmplitude, maxRadiusAmplitude);
+		const float radiusFreq = std::clamp(radiusFreqDist(rng), minRadiusFreq, maxRadiusFreq);
+		const float radiusPhase = phaseDist(rng);
+		stars.emplace_back(pos, rad, rat, nFlares, colorFreq, colorPhase, c, radiusAmplitude, radiusFreq, radiusPhase);
+	}*/
 }
 
 void Game::Go()
@@ -43,7 +75,26 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	const float speed = 3.0f;
+	const float dt = ft.Mark();
+
+	ball.Update(dt);
+
+	const float speed = 2.0f;
+	if (wnd.kbd.KeyIsPressed(VK_UP))
+	{
+		plank.MoveFreeY(speed);
+	}
+	if (wnd.kbd.KeyIsPressed(VK_DOWN))
+	{
+		plank.MoveFreeY(-speed);
+	}
+
+	/*for (auto& star : stars)
+	{
+		star.UpdateTime(dt);
+	}
+
+	const float speed = 10.0f;
 	if (wnd.kbd.KeyIsPressed(VK_UP))
 	{
 		cam.MoveBy({ 0.0f, speed });
@@ -72,19 +123,20 @@ void Game::UpdateModel()
 		{
 			cam.SetScale(cam.GetScale() * 0.95f);
 		}
-	}
+	}*/
 }
 
 void Game::ComposeFrame()
 {
-	//if (wnd.mouse.LeftIsPressed())
-	//{
-	//	gfx.DrawLine({ 100.0f, 100.0f }, Vec2((float)wnd.mouse.GetPosX(), (float)wnd.mouse.GetPosY()), Colors::Cyan);
-	//}
-
-	for (auto& entity : entities)
+	cam.Draw(plank.GetDrawable());
+	cam.Draw(ball.GetDrawable());
+	/*const auto vp = cam.GetViewprotRect();
+	for (const auto& star : stars)
 	{
-		cam.Draw(entity.GetDrawable());
-	}
-
+		auto d = star.GetDrawable();
+		if (star.GetBoundingRect().IsOverLapping(vp))
+		{
+			cam.Draw(d);
+		}
+	}*/
 }

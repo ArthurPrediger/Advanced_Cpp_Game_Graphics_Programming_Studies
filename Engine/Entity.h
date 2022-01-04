@@ -33,12 +33,21 @@ public:
 	{
 		scale = s;
 	}
-	Drawable GetDrawable()
+	void SetColor(Color c_in)
+	{
+		c = c_in;
+	}
+	Drawable GetDrawable() const
 	{
 		Drawable d(model, c);
 		d.Scale(scale);
 		d.Translate(pos);
 		return d;
+	}
+protected:
+	void SetModel(std::vector<Vec2> model_in)
+	{
+		model = std::move(model_in);
 	}
 private:
 	Color c;
