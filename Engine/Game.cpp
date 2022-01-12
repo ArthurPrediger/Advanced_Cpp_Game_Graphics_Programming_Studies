@@ -20,6 +20,7 @@
  ******************************************************************************************/
 #include "MainWindow.h"
 #include "Game.h"
+#include "MathBullshit.h"
 
 Game::Game(MainWindow& wnd)
 	:
@@ -27,8 +28,8 @@ Game::Game(MainWindow& wnd)
 	gfx(wnd),
 	ct(gfx),
 	cam(ct),
-	plank({100.0f, 200.0f}, -380.0f, -100.0f, 280.0f, 10.0f),
-	ball({-150.0f, -250.0f}, 15.0f, {-8.0f, 32.0f})
+	plank({ 100.0f, 200.0f }, -380.0f, -100.0f, 280.0f, 10.0f),
+	spawn(balls, 15.0f, { -200.0f, -250.0f }, -50.0f, 50.0f, 100.0f, 2.0f)
 {
 	/*std::mt19937 rng(std::random_device{}());
 	std::uniform_real_distribution<float> xDist(-WorldWidth / 2.0f, WorldWidth / 2.0f);
@@ -77,7 +78,43 @@ void Game::UpdateModel()
 {
 	const float dt = ft.Mark();
 
-	ball.Update(dt);
+	const auto plankPts = plank.GetPoints();
+	for (auto& ball : balls)
+	{
+		const auto dy = plankPts.second.y - plankPts.first.y;
+		const auto dx = plankPts.second.x - plankPts.first.x;
+		const Vec2 ballPos = ball.GetPos();
+		Vec2 plankNormal;
+		if (dy == 0)
+		{
+			plankNormal = { 0.0f, ballPos.y > plankPts.first.y ? 1.0f : -1.0f};
+		}
+		else if (dx == 0.0f)
+		{
+			plankNormal = { ballPos.x > plankPts.first.x ? 1.0f : -1.0f, 0.0f };
+		}
+		else
+		{
+			const auto m = dy / dx;
+			const auto w = -1 / m;
+			const auto b = plankPts.first.y - m * plankPts.first.x;
+			const auto p = ballPos.y - w * ballPos.x;
+			const auto x = (p - b) / (m - w);
+			const auto y = m * x + b;
+			plankNormal = (ballPos - Vec2(x, y)).Normalize();
+		}
+
+		if (plankNormal * ball.GetVel() < 0.0f && 
+			DistancePointLine(plankPts.first, plankPts.second, ball.GetPos()) < ball.GetRadius())
+		{
+			const Vec2 w = plank.GetPlankSurfaceVector().GetNormalized();
+			const Vec2 v = ball.GetVel();
+			ball.SetVel( w * (v * w) * 2.0f - v);
+		}
+
+		ball.Update(dt);
+	}
+	spawn.Update(dt);
 
 	const float speed = 2.0f;
 	if (wnd.kbd.KeyIsPressed(VK_UP))
@@ -88,6 +125,13 @@ void Game::UpdateModel()
 	{
 		plank.MoveFreeY(-speed);
 	}
+
+	const auto new_end = std::remove_if(balls.begin(), balls.end(), 
+		[this](const Ball& b)
+		{
+			return b.GetPos().Len() > maxBallDistance;
+		});
+	balls.erase(new_end, balls.end());
 
 	/*for (auto& star : stars)
 	{
@@ -111,7 +155,7 @@ void Game::UpdateModel()
 	{
 		cam.MoveBy({ -speed, 0.0f });
 	}
-	
+	*/
 	while (!wnd.mouse.IsEmpty())
 	{
 		const auto e = wnd.mouse.Read();
@@ -123,13 +167,16 @@ void Game::UpdateModel()
 		{
 			cam.SetScale(cam.GetScale() * 0.95f);
 		}
-	}*/
+	}
 }
 
 void Game::ComposeFrame()
 {
 	cam.Draw(plank.GetDrawable());
-	cam.Draw(ball.GetDrawable());
+	for (auto& ball : balls)
+	{
+		cam.Draw(ball.GetDrawable());
+	}
 	/*const auto vp = cam.GetViewprotRect();
 	for (const auto& star : stars)
 	{

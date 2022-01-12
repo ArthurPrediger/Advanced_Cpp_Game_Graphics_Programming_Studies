@@ -41,6 +41,11 @@ public:
 	{
 		return -freePtModel;
 	}
+	auto GetPoints() const
+	{
+		const Vec2 pos = GetPos();
+		return std::make_pair(pos, pos + freePtModel);
+	}
 private:
 	float minFreeYModel;
 	float maxFreeYModel;

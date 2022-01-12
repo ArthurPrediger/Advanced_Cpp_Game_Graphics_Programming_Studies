@@ -31,7 +31,7 @@
 #include <random>
 #include "FrameTimer.h"
 #include "Plank.h"
-#include "Ball.h"
+#include "SpawnPoint.h"
 
 class Game
 {
@@ -81,11 +81,13 @@ private:
 	static constexpr float minRadiusFreq = 0.6f;
 	static constexpr float maxRadiusFreq = 4.0f;*/
 	// game objects
+	static constexpr float maxBallDistance = 2000.0f;
 	FrameTimer ft;
 	CoordinateTrasnformer ct;
 	Camera cam;
 	std::vector<StarBro> stars;
 	Plank plank;
-	Ball ball;
+	std::vector<Ball> balls;
+	SpawnPoint spawn;
 	/********************************/
 };
