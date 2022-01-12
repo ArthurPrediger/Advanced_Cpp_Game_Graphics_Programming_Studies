@@ -52,7 +52,7 @@ private:
 	/********************************/
 	/*  User Variables              */
 	// world generation parameters
-	/*static constexpr float WorldWidth = 10000.0f;
+	static constexpr float WorldWidth = 10000.0f;
 	static constexpr float WorldHeight = 6000.0f;
 	static constexpr int nStars = 500;
 	static constexpr float meanStarRadius = 160.0f;
@@ -79,15 +79,11 @@ private:
 	static constexpr float meanRadiusFreq = 1.8f;
 	static constexpr float devRadiusFreq = 1.0f;
 	static constexpr float minRadiusFreq = 0.6f;
-	static constexpr float maxRadiusFreq = 4.0f;*/
+	static constexpr float maxRadiusFreq = 4.0f;
 	// game objects
-	static constexpr float maxBallDistance = 2000.0f;
 	FrameTimer ft;
 	CoordinateTrasnformer ct;
 	Camera cam;
 	std::vector<StarBro> stars;
-	Plank plank;
-	std::vector<Ball> balls;
-	SpawnPoint spawn;
 	/********************************/
 };
