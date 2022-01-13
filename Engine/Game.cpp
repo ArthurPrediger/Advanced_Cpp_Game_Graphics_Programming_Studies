@@ -30,41 +30,7 @@ Game::Game(MainWindow& wnd)
 	cam(ct),
 	plank({ 100.0f, 200.0f }, -380.0f, -100.0f, 280.0f, 10.0f),
 	spawn(balls, 15.0f, { -200.0f, -250.0f }, -50.0f, 50.0f, 100.0f, 2.0f)
-{
-	/*std::mt19937 rng(std::random_device{}());
-	std::uniform_real_distribution<float> xDist(-WorldWidth / 2.0f, WorldWidth / 2.0f);
-	std::uniform_real_distribution<float> yDist(-WorldHeight / 2.0f, WorldHeight / 2.0f);
-	std::normal_distribution<float> radDist(meanStarRadius, devStarRadius);
-	std::normal_distribution<float> ratDist(meanInnerRatio, devInnerRatio);
-	std::normal_distribution<float> flareDist(meanFlares, devFlares);
-	const Color colors[] = { Colors::White, Colors::Blue, Colors::Green, Colors::Red, Colors::Cyan, Colors::Yellow };
-	std::uniform_int_distribution<size_t> colorSampler(0, std::end(colors) - std::begin(colors));
-	std::normal_distribution<float> colorFreqDist(meanColorFreq, devColorFreq);
-	std::uniform_real_distribution<float> phaseDist(0.0f, 2.0f * 3.14159f);
-	std::normal_distribution<float> radiusAmplitudeDist(meanRadiusAmplitude, devRadiusAmplitude);
-	std::normal_distribution<float> radiusFreqDist(meanRadiusFreq, devRadiusFreq);
-
-	while (stars.size() < nStars)
-	{
-		const auto rad = std::clamp(radDist(rng), minStarRadius, maxStarRadius);
-		const Vec2 pos = { xDist(rng), yDist(rng) };
-		if (std::any_of(stars.begin(), stars.end(), [&](const StarBro& sb)
-			{return (sb.GetPos() - pos).Len() < rad + sb.GetMaxRadius(); }))
-		{
-			continue;
-		}
-
-		const auto rat = std::clamp(ratDist(rng), minInnerRatio, maxInnerRatio);
-		const Color c = colors[colorSampler(rng)];
-		const int nFlares = std::clamp((int)flareDist(rng), minFlares, maxFlares);
-		const float colorFreq = std::clamp(colorFreqDist(rng), minColorFreq, maxColorFreq);
-		const float colorPhase = phaseDist(rng);
-		const float radiusAmplitude = std::clamp(radiusAmplitudeDist(rng), minRadiusAmplitude, maxRadiusAmplitude);
-		const float radiusFreq = std::clamp(radiusFreqDist(rng), minRadiusFreq, maxRadiusFreq);
-		const float radiusPhase = phaseDist(rng);
-		stars.emplace_back(pos, rad, rat, nFlares, colorFreq, colorPhase, c, radiusAmplitude, radiusFreq, radiusPhase);
-	}*/
-}
+{}
 
 void Game::Go()
 {
@@ -81,28 +47,9 @@ void Game::UpdateModel()
 	const auto plankPts = plank.GetPoints();
 	for (auto& ball : balls)
 	{
-		const auto dy = plankPts.second.y - plankPts.first.y;
-		const auto dx = plankPts.second.x - plankPts.first.x;
+		const auto plankVector = plank.GetPlankSurfaceVector();
+		Vec2 plankNormal = Vec2{plankVector.y, -plankVector.x};
 		const Vec2 ballPos = ball.GetPos();
-		Vec2 plankNormal;
-		if (dy == 0)
-		{
-			plankNormal = { 0.0f, ballPos.y > plankPts.first.y ? 1.0f : -1.0f};
-		}
-		else if (dx == 0.0f)
-		{
-			plankNormal = { ballPos.x > plankPts.first.x ? 1.0f : -1.0f, 0.0f };
-		}
-		else
-		{
-			const auto m = dy / dx;
-			const auto w = -1 / m;
-			const auto b = plankPts.first.y - m * plankPts.first.x;
-			const auto p = ballPos.y - w * ballPos.x;
-			const auto x = (p - b) / (m - w);
-			const auto y = m * x + b;
-			plankNormal = (ballPos - Vec2(x, y)).Normalize();
-		}
 
 		if (plankNormal * ball.GetVel() < 0.0f && 
 			DistancePointLine(plankPts.first, plankPts.second, ball.GetPos()) < ball.GetRadius())
@@ -133,29 +80,6 @@ void Game::UpdateModel()
 		});
 	balls.erase(new_end, balls.end());
 
-	/*for (auto& star : stars)
-	{
-		star.UpdateTime(dt);
-	}
-
-	const float speed = 10.0f;
-	if (wnd.kbd.KeyIsPressed(VK_UP))
-	{
-		cam.MoveBy({ 0.0f, speed });
-	}
-	if (wnd.kbd.KeyIsPressed(VK_DOWN))
-	{
-		cam.MoveBy({ 0.0f, -speed });
-	}
-	if (wnd.kbd.KeyIsPressed(VK_RIGHT))
-	{
-		cam.MoveBy({ speed, 0.0f });
-	}
-	if (wnd.kbd.KeyIsPressed(VK_LEFT))
-	{
-		cam.MoveBy({ -speed, 0.0f });
-	}
-	*/
 	while (!wnd.mouse.IsEmpty())
 	{
 		const auto e = wnd.mouse.Read();
@@ -177,13 +101,4 @@ void Game::ComposeFrame()
 	{
 		cam.Draw(ball.GetDrawable());
 	}
-	/*const auto vp = cam.GetViewprotRect();
-	for (const auto& star : stars)
-	{
-		auto d = star.GetDrawable();
-		if (star.GetBoundingRect().IsOverLapping(vp))
-		{
-			cam.Draw(d);
-		}
-	}*/
 }
