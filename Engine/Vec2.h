@@ -41,20 +41,6 @@ public:
 		norm.Normalize();
 		return norm;
 	}
-	Vec2_& Rotate(T angle)
-	{
-		const T cosTheta = cos(angle);
-		const T sinTheta = sin(angle);
-
-		const T new_x = x * cosTheta - y * sinTheta;
-		y = x * sinTheta + y * cosTheta;
-		x = new_x;
-		return *this;
-	}
-	Vec2_ Rotate(T angle) const
-	{
-		return Vec2_(*this).Rotate(angle);
-	}
 	T		operator*(const Vec2_& rhs) const
 	{
 		return x * rhs.x + y * rhs.y;
