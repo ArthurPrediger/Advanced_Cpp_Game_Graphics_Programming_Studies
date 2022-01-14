@@ -156,6 +156,7 @@
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="MathBullshit.h" />
     <ClInclude Include="Mouse.h" />
+    <ClInclude Include="MouseCameraController.h" />
     <ClInclude Include="Plank.h" />
     <ClInclude Include="RectF.h" />
     <ClInclude Include="Resource.h" />

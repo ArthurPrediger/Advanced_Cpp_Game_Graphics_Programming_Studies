@@ -8,7 +8,7 @@ class StarBro : public Entity
 {
 public:
 	StarBro(Vec2 pos, float radius, float innerRatio, int nFlares, float colorFreq, float colorPhase, Color c,
-		float radiusFactorAmpliude, float radiusFactorFreq, float radiusFactorPhase)
+		float radiusFactorAmpliude, float radiusFactorFreq, float radiusFactorPhase, float rotSpeed)
 		:
 		Entity(Star::Make(radius, radius* innerRatio, nFlares), pos, c),
 		radius(radius),
@@ -17,7 +17,8 @@ public:
 		baseColor(c),
 		radiusFactorAmpliude(radiusFactorAmpliude),
 		radiusFactorFreq (2.0f * 3.14159f * radiusFactorFreq),
-		radiusFactorPhase(radiusFactorPhase)
+		radiusFactorPhase(radiusFactorPhase),
+		rotSpeed(rotSpeed)
 	{}
 	float GetRadius() const
 	{
@@ -36,6 +37,7 @@ public:
 		time += dt;
 		UpdateColor();
 		UpdateScale();
+		UpdateRotation();
 	}
 private:
 	void UpdateColor()
@@ -52,11 +54,16 @@ private:
 		const float factor = radiusFactorAmpliude * sin(radiusFactorFreq * time + radiusFactorPhase);
 		SetScale(1.0f + factor);
 	}
+	void UpdateRotation()
+	{
+		SetAngle(rotSpeed * time);
+	}
 private:
 	float radius;
 	Color baseColor;
 	float colorFreqFactor;
 	float colorPhase;
+	float rotSpeed;
 	float time = 0.0f;
 	float radiusFactorAmpliude;
 	float radiusFactorFreq;

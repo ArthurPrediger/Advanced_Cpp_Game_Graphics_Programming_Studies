@@ -27,7 +27,8 @@ Game::Game(MainWindow& wnd)
 	wnd(wnd),
 	gfx(wnd),
 	ct(gfx),
-	cam(ct)
+	cam(ct),
+	camCtrl(wnd.mouse, cam)
 {
 	std::mt19937 rng(std::random_device{}());
 	std::uniform_real_distribution<float> xDist(-WorldWidth / 2.0f, WorldWidth / 2.0f);
@@ -41,13 +42,16 @@ Game::Game(MainWindow& wnd)
 	std::uniform_real_distribution<float> phaseDist(0.0f, 2.0f * 3.14159f);
 	std::normal_distribution<float> radiusAmplitudeDist(meanRadiusAmplitude, devRadiusAmplitude);
 	std::normal_distribution<float> radiusFreqDist(meanRadiusFreq, devRadiusFreq);
+	std::uniform_real_distribution<float> rotSpeedDist(minRotSpeed, maxRotSpeed);
 
 	while (stars.size() < nStars)
 	{
 		const auto rad = std::clamp(radDist(rng), minStarRadius, maxStarRadius);
+		const float radiusAmplitude = std::clamp(radiusAmplitudeDist(rng), minRadiusAmplitude, maxRadiusAmplitude);
+		const float maxRad = rad * (1 + radiusAmplitude);
 		const Vec2 pos = { xDist(rng), yDist(rng) };
 		if (std::any_of(stars.begin(), stars.end(), [&](const StarBro& sb)
-			{return (sb.GetPos() - pos).Len() < rad + sb.GetMaxRadius(); }))
+			{return (sb.GetPos() - pos).Len() < maxRad + sb.GetMaxRadius(); }))
 		{
 			continue;
 		}
@@ -57,10 +61,10 @@ Game::Game(MainWindow& wnd)
 		const int nFlares = std::clamp((int)flareDist(rng), minFlares, maxFlares);
 		const float colorFreq = std::clamp(colorFreqDist(rng), minColorFreq, maxColorFreq);
 		const float colorPhase = phaseDist(rng);
-		const float radiusAmplitude = std::clamp(radiusAmplitudeDist(rng), minRadiusAmplitude, maxRadiusAmplitude);
 		const float radiusFreq = std::clamp(radiusFreqDist(rng), minRadiusFreq, maxRadiusFreq);
 		const float radiusPhase = phaseDist(rng);
-		stars.emplace_back(pos, rad, rat, nFlares, colorFreq, colorPhase, c, radiusAmplitude, radiusFreq, radiusPhase);
+		const float rotSpeed = rotSpeedDist(rng);
+		stars.emplace_back(pos, rad, rat, nFlares, colorFreq, colorPhase, c, radiusAmplitude, radiusFreq, radiusPhase, rotSpeed);
 	}
 }
 
@@ -81,36 +85,7 @@ void Game::UpdateModel()
 		star.UpdateTime(dt);
 	}
 
-	const float speed = 10.0f;
-	if (wnd.kbd.KeyIsPressed(VK_UP))
-	{
-		cam.MoveBy({ 0.0f, speed });
-	}
-	if (wnd.kbd.KeyIsPressed(VK_DOWN))
-	{
-		cam.MoveBy({ 0.0f, -speed });
-	}
-	if (wnd.kbd.KeyIsPressed(VK_RIGHT))
-	{
-		cam.MoveBy({ speed, 0.0f });
-	}
-	if (wnd.kbd.KeyIsPressed(VK_LEFT))
-	{
-		cam.MoveBy({ -speed, 0.0f });
-	}
-	
-	while (!wnd.mouse.IsEmpty())
-	{
-		const auto e = wnd.mouse.Read();
-		if (e.GetType() == Mouse::Event::WheelUp)
-		{
-			cam.SetScale(cam.GetScale() * 1.05f);
-		}
-		else if (e.GetType() == Mouse::Event::WheelDown)
-		{
-			cam.SetScale(cam.GetScale() * 0.95f);
-		}
-	}
+	camCtrl.Update();
 }
 
 void Game::ComposeFrame()

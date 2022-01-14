@@ -24,9 +24,10 @@
 #include "Mouse.h"
 #include "Graphics.h"
 #include <algorithm>
+#include "MathBullshit.h"
 #include "CoordinateTransformer.h"
 #include "Star.h"
-#include "Camera.h"
+#include "MouseCameraController.h"
 #include "StarBro.h"
 #include <random>
 #include "FrameTimer.h"
@@ -80,10 +81,15 @@ private:
 	static constexpr float devRadiusFreq = 1.0f;
 	static constexpr float minRadiusFreq = 0.6f;
 	static constexpr float maxRadiusFreq = 4.0f;
+
+	static constexpr float minRotSpeed = -2.0f * PI;
+	static constexpr float maxRotSpeed = 2.0f * PI;
+
 	// game objects
 	FrameTimer ft;
 	CoordinateTrasnformer ct;
 	Camera cam;
+	MouseCameraController camCtrl;
 	std::vector<StarBro> stars;
 	/********************************/
 };
