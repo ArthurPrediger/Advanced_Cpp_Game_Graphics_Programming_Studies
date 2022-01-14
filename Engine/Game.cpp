@@ -28,7 +28,7 @@ Game::Game(MainWindow& wnd)
 	gfx(wnd),
 	ct(gfx),
 	cam(ct),
-	camCtrl(wnd.mouse, cam)
+	camCtrl(wnd.mouse, wnd.kbd, cam)
 {
 	std::mt19937 rng(std::random_device{}());
 	std::uniform_real_distribution<float> xDist(-WorldWidth / 2.0f, WorldWidth / 2.0f);
@@ -85,7 +85,7 @@ void Game::UpdateModel()
 		star.UpdateTime(dt);
 	}
 
-	camCtrl.Update();
+	camCtrl.Update(dt);
 }
 
 void Game::ComposeFrame()

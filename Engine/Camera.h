@@ -27,6 +27,7 @@ public:
 	{
 		drawable.Translate(-pos);
 		drawable.Scale(scale);
+		drawable.Rotate(angle);
 		ct.DrawClosedPolyline(drawable);
 	}
 	float GetScale() const
@@ -37,16 +38,25 @@ public:
 	{
 		scale = scale_in;
 	}
+	float GetAngle() const
+	{
+		return angle;
+	}
+	void SetAngle(float angle_in)
+	{
+		angle = angle_in;
+	}
 	RectF GetViewprotRect() const
 	{
 		const float zoom = 1.0f / scale;
-		return RectF::FromCenter(
-			pos, 
-			float(Graphics::ScreenWidth / 2) * zoom,
-			float(Graphics::ScreenHeight / 2) * zoom);
+		const float diagonal = (
+			sq(float(Graphics::ScreenWidth / 2) * zoom) +
+			sq(float(Graphics::ScreenHeight / 2) * zoom));
+		return RectF::FromCenter(pos, diagonal, diagonal);
 	}
 private:
 	Vec2 pos = {0.0f, 0.0f};
 	float scale = 1.0f;
+	float angle = 0.0f;
 	CoordinateTrasnformer& ct;
 };
