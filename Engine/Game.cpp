@@ -21,6 +21,7 @@
 #include "MainWindow.h"
 #include "Game.h"
 #include "MathBullshit.h"
+#include "Mat3.h"
 
 Game::Game(MainWindow& wnd)
 	:

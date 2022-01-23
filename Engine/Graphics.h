@@ -24,7 +24,7 @@
 #include <wrl.h>
 #include "ChiliException.h"
 #include "Colors.h"
-#include "Vec2.h"
+#include "Mat3.h"
 
 class Graphics
 {
@@ -60,8 +60,7 @@ public:
 	void PutPixel( int x,int y,Color c );
 	void DrawLine(Vec2 p0, Vec2 p1, Color c);
 	void DrawClosedPolyline(const std::vector<Vec2>& verts, Color c);
-	void DrawClosedPolyline(const std::vector<Vec2>& verts, const Vec2& translation, 
-		float scale_x, float scale_y, float angle, Color c);
+	void DrawClosedPolyline(const std::vector<Vec2>& verts, Mat3 transform, Color c);
 	~Graphics();
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;

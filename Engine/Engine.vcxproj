@@ -140,7 +140,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Ball.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="ChiliWin.h" />
@@ -154,16 +153,17 @@
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="Mat2.h" />
+    <ClInclude Include="Mat3.h" />
     <ClInclude Include="MathBullshit.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="MouseCameraController.h" />
-    <ClInclude Include="Plank.h" />
     <ClInclude Include="RectF.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="SpawnPoint.h" />
     <ClInclude Include="Star.h" />
     <ClInclude Include="StarBro.h" />
     <ClInclude Include="Vec2.h" />
+    <ClInclude Include="Vec3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXErr.cpp" />
